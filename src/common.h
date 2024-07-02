@@ -3,7 +3,12 @@
 
 #pragma once
 
-#include <unistd.h>
+#include <inttypes.h>
+
+/**
+ * Baud rate for the serial devices
+ */
+#define BAUD_RATE B19200
 
 /**
  * Struct for the state of each of the buttons
@@ -45,3 +50,4 @@ typedef struct {
     uint16_t x;
     uint16_t y;
 } joypad_struct_t;
+

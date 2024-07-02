@@ -3,7 +3,6 @@
 
 #pragma once
 
-#include <termios.h>
 #include "../common.h"
 
 /**
@@ -30,4 +29,4 @@ int closeJoypad(int fd);
  * @param fd[in] the handle of the device to read
  * @param j[in] joypad struct
  */
-void readJoypad(int fd, joypad_struct_t *j)
+void readJoypad(int fd, joypad_struct_t *j);

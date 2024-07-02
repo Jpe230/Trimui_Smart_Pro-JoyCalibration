@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "serial-joystick.h"
+#include <fcntl.h>
+#include <unistd.h>
+#include <termios.h>
+#include <stdlib.h>
+#include <stdio.h>
 
 int openJoypad(const char *serialPort)
 {
@@ -45,7 +50,7 @@ void parseRawData(uint8_t *b, uint8_t rb, joypad_struct_t *j)
 {
     if (rb != 7)
     {
-        return NULL;
+        return;
     }
 
     j->header = (b[0] << 8 | b[1]);
