@@ -28,3 +28,11 @@ void calculateZero(joypad_struct_t *joypad, joypad_cali_t *cali);
  * @param cali[in] the calculated values
  */
 void clearData(joypad_struct_t *joypad, joypad_cali_t *cali);
+
+/**
+ * Prints the data into a file
+ *
+ * @param joypad[in] the current values
+ * @param cali[in] the calculated values
+ */
+void writeCali(joypad_cali_t *cali, const char *caliFile);

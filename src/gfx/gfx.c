@@ -8,6 +8,8 @@ extern TTF_Font *font26;
 extern TTF_Font *font24;
 extern TTF_Font *font20;
 
+SDL_Joystick* joystick;
+
 void initSDL(SDL_Window **sdlWindow, SDL_Renderer **sdlRenderer)
 {
     SDL_SetHint(SDL_HINT_RENDER_DRIVER, "opengles");
@@ -31,7 +33,7 @@ void initSDL(SDL_Window **sdlWindow, SDL_Renderer **sdlRenderer)
     font24 = TTF_OpenFont("./font.ttf", 24);
     font20 = TTF_OpenFont("./font.ttf", 20);
 
-	SDL_JoystickOpen(0);
+	openJoystick();
 }
 
 void cleanScreen(SDL_Renderer *sdlRenderer)
@@ -41,8 +43,26 @@ void cleanScreen(SDL_Renderer *sdlRenderer)
     SDL_RenderPresent(sdlRenderer);
 }
 
+void openJoystick()
+{
+	if( SDL_NumJoysticks() >= 1 )
+	{
+		joystick = SDL_JoystickOpen(0);
+	}
+}
+
+void closeJoystick()
+{
+	if(joystick)
+	{
+		SDL_JoystickClose(joystick);
+	}
+	joystick = NULL;
+}
+
 void cleanUpSDL(SDL_Window *sdlWindow, SDL_Renderer *sdlRenderer)
 {
+	closeJoystick();
     SDL_DestroyRenderer(sdlRenderer);
     SDL_DestroyWindow(sdlWindow);
 	SDL_Quit();
@@ -52,6 +72,17 @@ uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis)
 {
 	while( SDL_PollEvent( event ) != 0 )
 	{
+
+		if (event->type == SDL_JOYDEVICEADDED)
+		{
+			printf("A Joystick was connected and assigned index %d.\n", event->jdevice.which);
+
+			if (joystick == NULL)
+			{	
+				printf("Adding new joystick: %d.\n", event->jdevice.which);
+				openJoystick();
+			}
+		}
 
 		if(event->type == SDL_QUIT || (event->type == SDL_JOYBUTTONDOWN && event->jbutton.button == 3))
 		{

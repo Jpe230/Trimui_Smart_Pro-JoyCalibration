@@ -45,6 +45,11 @@ int openJoypad(const char *serialPort)
 
 int closeJoypad(int fd)
 {
+    if(fd <= 0)
+    {
+        return -1;
+    }
+    
     return close(fd);
 }
 
@@ -59,8 +64,6 @@ void parseRawData(uint8_t *b, uint8_t rb, joypad_struct_t *j)
     j->buttons.b = b[2];
     j->x = (b[3] << 8 | b[4]);
     j->y = (b[5] << 8 | b[6]);
-
-    //printf("values: %04d %04d\n", j->x, j->y);
 }
 
 int readJoypad(int fd, joypad_struct_t *j)

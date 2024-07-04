@@ -2,6 +2,8 @@
 // SPDX-License-Identifier: GPL-2.0-or-later
 
 #include "cali.h"
+#include <stdio.h>
+#include <stdlib.h>
 
 #define max(a,b) (((a) > (b)) ? (a) : (b))
 #define min(a,b) (((a) < (b)) ? (a) : (b))
@@ -40,4 +42,21 @@ void calculateZero(joypad_struct_t *joypad, joypad_cali_t *cali)
 {
     cali->x_zero=joypad->x;
     cali->y_zero=joypad->y;
+}
+
+void writeCali(joypad_cali_t *cali, const char* fileCal)
+{
+    FILE *fp = fopen(fileCal, "w");
+    if (fp == NULL) {
+        perror("Error opening file");
+    }
+
+    fprintf(fp, "x_min=%d\n", cali->x_min);
+    fprintf(fp, "x_max=%d\n", cali->x_max);
+    fprintf(fp, "y_min=%d\n", cali->y_min);
+    fprintf(fp, "y_max=%d\n", cali->y_max);
+    fprintf(fp, "x_zero=%d\n", cali->x_zero);
+    fprintf(fp, "y_zero=%d\n", cali->y_zero);
+
+    fclose(fp);
 }

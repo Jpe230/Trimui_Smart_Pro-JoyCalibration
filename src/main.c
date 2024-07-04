@@ -7,6 +7,7 @@
 #include "serial/serial-joystick.h"
 #include "gfx/gfx.h"
 #include "cali/cali.h"
+#include "daemon/daemon.h"
 
 #define MAX_COMMAND_LENGTH 256
 
@@ -19,14 +20,13 @@ TTF_Font *font20 = NULL;
 sdl_axis_t sdlAxis;
 double deltaTime = 0;
 
-void writeAndRestart(joypad_cali_t *cali, uint8_t joyToCal);
+void saveChanges(joypad_cali_t *cali, uint8_t joyToCal);
 
 int main ()
 {
     initSDL(&sdlWindow, &sdlRenderer);
     cleanScreen(sdlRenderer);
 
-    uint32_t startTime = SDL_GetTicks();
     uint8_t resetTimer = 0;
     uint8_t canRead = 0;
     uint8_t state = 0;
@@ -67,6 +67,7 @@ int main ()
                 joyFd = openJoypad(joyToCal == 0 ? "/dev/ttyS4" : "/dev/ttyS3");
                 clearData(&joyData, &joyCali);
                 state = 10;
+                break;
             case 10:
                 joyTutorial(&state, 15);
                 break;
@@ -74,24 +75,27 @@ int main ()
                 state = 20;
                 canRead = 1;
                 resetTimer = 1;
+                break;
             case 20:
                 calculateMinMax(&joyData, &joyCali);
-                joyCaliPanel(&joyData, &joyCali, resetTimer, &state, 25);
+                joyCaliPanel(/*&joyData, &joyCali,*/ resetTimer, &state, 25);
                 resetTimer = 0;
                 break;
             case 25:
                 state = 30;
                 resetTimer = 1;
+                break;
             case 30:
-                joyZeroPanel(&joyData, &joyCali, resetTimer, &state, 35);
+                joyZeroPanel(/*&joyData, &joyCali,*/ resetTimer, &state, 35);
                 resetTimer = 0;
                 break;
             case 35:
-                calculateZero(&joyData, &joyCali);
-                state = 40;
                 canRead = 0;
+                calculateZero(&joyData, &joyCali);
                 closeJoypad(joyFd);
-                writeAndRestart(&joyCali, joyToCal);
+                saveChanges(&joyCali, joyToCal);
+                state = 40;
+                break;
             case 40:
                 joySave(&state, 0);
                 break;
@@ -100,90 +104,47 @@ int main ()
         SDL_RenderPresent(sdlRenderer);
     }    
     
-    if(joyFd > 0)
-    {
-        closeJoypad(joyFd);
-    }
-
+    closeJoypad(joyFd);
     cleanScreen(sdlRenderer);
     cleanUpSDL(sdlWindow, sdlRenderer);
 	return 0;
 
 }
 
-pid_t findDaemonPid(const char *daemonName) {
-    FILE *pipe;
-    char command[50];
-    char pid_str[10];
-    pid_t pid;
-    snprintf(command, sizeof(command), "pgrep %s", daemonName);
-    pipe = popen(command, "r");
-    if (pipe == NULL) {
-        perror("popen");
-        return -1;
-    }
-    if (fgets(pid_str, sizeof(pid_str), pipe) == NULL) {
-        perror("fgets");
-        pclose(pipe);
-        return -1;
-    }
-    pid = (pid_t) atoi(pid_str);
-    pclose(pipe);
-    return pid;
-}
 
-void killDaemon(const char* daemonName) 
-{
-    pid_t pid = findDaemonPid(daemonName);
-    if (pid > 0) {
-        if (kill(pid, SIGTERM) == 0) {
-            printf("Daemon '%s' (PID: %d) killed successfully.\n", daemonName, pid);
-        } else {
-            perror("Error killing daemon");
-        }
-    } else {
-        printf("Daemon '%s' not found.\n", daemonName);
-    }
-}
-
-void startDaemon(const char* daemonName)
-{
-    pid_t pid = fork();
-    if (pid == -1) {
-        perror("fork");
-        exit(EXIT_FAILURE);
-    }
-    
-    if (pid == 0) {
-        system(daemonName);
-    }
-}
-
-void writeAndRestart(joypad_cali_t *cali, uint8_t joyToCal)
+void saveChanges(joypad_cali_t *cali, uint8_t joyToCal)
 {   
     const char* fileCal = joyToCal == 0 ? "/mnt/UDISK/joypad.config" :  "/mnt/UDISK/joypad_right.config";
     const char* fileCalBk = joyToCal == 0 ? "/mnt/UDISK/joypad.config.bk" :  "/mnt/UDISK/joypad_right.config.bk";
+
+    joySaving(0, "Backing up old file...");
+    sleep(1);
     if (access(fileCal, F_OK) == 0) {
         rename(fileCal, fileCalBk);
     }
+    
+    joySaving(10, "Closing SDL joystick...");
+    sleep(1);
+    closeJoystick();
 
-    FILE *fp = fopen(fileCal, "w");
-    if (fp == NULL) {
-        perror("Error opening file");
-    }
+    joySaving(15, "Writing new calibartion data...");
+    sleep(1);
+    writeCali(cali, fileCal);
 
-    fprintf(fp, "x_min=%d\n", cali->x_min);
-    fprintf(fp, "x_max=%d\n", cali->x_max);
-    fprintf(fp, "y_min=%d\n", cali->y_min);
-    fprintf(fp, "y_max=%d\n", cali->y_max);
-    fprintf(fp, "x_zero=%d\n", cali->x_zero);
-    fprintf(fp, "y_zero=%d\n", cali->y_zero);
-
-    fclose(fp);
-
+    joySaving(30, "Killing input daemon...");
+    sleep(1);
     killDaemon("trimui_inputd");
+
+    joySaving(55, "Restarting input daemon...");
+    sleep(1);
     startDaemon("trimui_inputd &");
-
-    //system("batocera-save-overlay");
-
+    
+    joySaving(65, "Opening SDL joystick...");
+    sleep(1);
+    int joysticks = SDL_NumJoysticks();
+    printf("There are %d joysticks connected: %s.\n", joysticks, SDL_JoystickNameForIndex(0));
+    
+    joySaving(80, "Applying changes to boot partition...");
+    sleep(1);
+    // system("batocera-save-overlay");
 }

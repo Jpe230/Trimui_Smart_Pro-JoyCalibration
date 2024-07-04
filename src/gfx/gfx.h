@@ -51,7 +51,7 @@ void joyTutorial(uint8_t *state, uint8_t nextState);
  * @param state[in] the pointer to the current state
  * @param nextState[in] the int value for the next panel
  */
-void joyCaliPanel(joypad_struct_t *joypad, joypad_cali_t *cali, uint8_t resetTimer, uint8_t *state, uint8_t nextState);
+void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState);
 
 /**
  * Panel where the zero pos is calcultated
@@ -61,10 +61,20 @@ void joyCaliPanel(joypad_struct_t *joypad, joypad_cali_t *cali, uint8_t resetTim
  * @param state[in] the pointer to the current state
  * @param nextState[in] the int value for the next panel
  */
-void joyZeroPanel(joypad_struct_t *joypad, joypad_cali_t *cali, uint8_t resetTimer,uint8_t *state, uint8_t nextState);
+void joyZeroPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer,uint8_t *state, uint8_t nextState);
 
 /**
- * Panel where we ask the user if we have to save the values
+ * Panel with a progress bar to show what are we doing while saving
+ *
+ * @param state[in] the pointer to the current state
+ * @param nextState[in] the int value for the next panel
+ * @param resetState[in] the int value for the first panel
+ */
+void joySaving(int progress, const char *action);
+
+
+/**
+ * Last panel, the user can return to the calibration or exit
  *
  * @param state[in] the pointer to the current state
  * @param nextState[in] the int value for the next panel
@@ -98,6 +108,16 @@ void cleanScreen(SDL_Renderer *sdlRenderer);
  * @param sdlRenderer[in] SDL Renderer pointer
  */
 void cleanUpSDL(SDL_Window *sdlWindow, SDL_Renderer *sdlRenderer);
+
+/**
+ * Open a new joystick
+ */
+void openJoystick();
+
+/**
+ * Close the open Joystick
+ */
+void closeJoystick();
 
 /**
  * Poll controllers

@@ -111,7 +111,7 @@ void joyTutorial(uint8_t *state, uint8_t nextState)
     }
 }
 
-void joyCaliPanel(joypad_struct_t *joypad, joypad_cali_t *cali, uint8_t resetTimer, uint8_t *state, uint8_t nextState)
+void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState)
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
@@ -152,7 +152,7 @@ void joyCaliPanel(joypad_struct_t *joypad, joypad_cali_t *cali, uint8_t resetTim
     }
 }
 
-void joyZeroPanel(joypad_struct_t *joypad, joypad_cali_t *cali, uint8_t resetTimer, uint8_t *state, uint8_t nextState)
+void joyZeroPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState)
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
@@ -193,6 +193,30 @@ void joyZeroPanel(joypad_struct_t *joypad, joypad_cali_t *cali, uint8_t resetTim
         dTime = 0;
         *state = nextState;
     }
+}
+
+void joySaving(int progress, const char *action)
+{   
+    drawUI();
+
+    int text_x = 140;
+    writeText(sdlRenderer, "Applying changes...", font24, 100, text_x);
+    writeText(sdlRenderer, action, font20, 100, text_x + 50);
+
+     SDL_Rect r;
+    r.w = 800;
+    r.h = 100;
+    r.x = CERTER_HOR(r.w);
+    r.y = CERTER_VER(r.h);
+    SDL_SetRenderDrawColor(sdlRenderer, 150, 150, 150, 255);
+    SDL_RenderFillRect(sdlRenderer, &r);
+
+    r.w = (int)map(progress, 0, 100.0, 0, 800.0);
+    
+    SDL_SetRenderDrawColor(sdlRenderer, 0, 201, 165, 125);
+    SDL_RenderFillRect(sdlRenderer, &r);
+
+    SDL_RenderPresent(sdlRenderer);
 }
 
 void joySave(uint8_t *state, uint8_t nextState)
