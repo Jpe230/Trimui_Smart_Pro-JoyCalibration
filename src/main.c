@@ -184,6 +184,6 @@ void writeAndRestart(joypad_cali_t *cali, uint8_t joyToCal)
     killDaemon("trimui_inputd");
     startDaemon("trimui_inputd &");
 
-    system("batocera-save-overlay");
+    //system("batocera-save-overlay");
 
 }
