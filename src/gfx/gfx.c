@@ -86,7 +86,7 @@ uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis)
 
 		if(event->type == SDL_QUIT || (event->type == SDL_JOYBUTTONDOWN && event->jbutton.button == 3))
 		{
-			printf("Exiting");
+			printf("Exiting\n");
 			return 0;
 		}
 

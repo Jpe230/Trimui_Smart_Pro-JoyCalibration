@@ -106,9 +106,12 @@ int main ()
     
     closeJoypad(joyFd);
     cleanScreen(sdlRenderer);
-    cleanUpSDL(sdlWindow, sdlRenderer);
-	return 0;
 
+    usleep(1); // Wait for screen to clear
+
+    cleanUpSDL(sdlWindow, sdlRenderer);
+    printf("Closing app\n");
+    exit(0);
 }
 
 
@@ -123,15 +126,15 @@ void saveChanges(joypad_cali_t *cali, uint8_t joyToCal)
         rename(fileCal, fileCalBk);
     }
     
-    joySaving(10, "Closing SDL joystick...");
+    joySaving(15, "Closing SDL joystick...");
     sleep(1);
     closeJoystick();
 
-    joySaving(15, "Writing new calibartion data...");
+    joySaving(20, "Writing new calibartion data...");
     sleep(1);
     writeCali(cali, fileCal);
 
-    joySaving(30, "Killing input daemon...");
+    joySaving(35, "Killing input daemon...");
     sleep(1);
     killDaemon("trimui_inputd");
 
@@ -139,12 +142,12 @@ void saveChanges(joypad_cali_t *cali, uint8_t joyToCal)
     sleep(1);
     startDaemon("trimui_inputd &");
     
-    joySaving(65, "Opening SDL joystick...");
+    joySaving(70, "Opening SDL joystick...");
     sleep(1);
     int joysticks = SDL_NumJoysticks();
     printf("There are %d joysticks connected: %s.\n", joysticks, SDL_JoystickNameForIndex(0));
     
-    joySaving(80, "Applying changes to boot partition...");
+    joySaving(85, "Applying changes to boot partition...");
     sleep(1);
     // system("batocera-save-overlay");
 }

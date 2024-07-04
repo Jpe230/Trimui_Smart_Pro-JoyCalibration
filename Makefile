@@ -2,14 +2,17 @@ CC = gcc
 CFLAGS = -Wall -Wextra
 LDFLAGS = -lSDL2 -lSDL2_ttf
 
+TARGET = TSP-Calibration
+
 SRCDIR = src
 BUILDDIR = build
-OBJDIR = build/obj
-BINDIR = build/bin
+OBJDIR = $(BUILDDIR)/obj
+BINDIR = $(BUILDDIR)/release/.data/$(TARGET)
 
-TARGET = TSP_JoyCalibration
-#SRCS = $(SRCDIR)/main.c $(SRCDIR)/gfx/gfx_dev.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial_joystick_dev.c 
-#SRCS = $(SRCDIR)/main.c $(SRCDIR)/cali/cali.c $(SRCDIR)/gfx/gfx.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial-joystick.c 
+ASSETS = assets
+FONT = $(ASSETS)/font.ttf
+LAUNCHSCRIPT = $(ASSETS)/TSP-Calibration.sh
+
 SRCS = $(SRCDIR)/main.c $(SRCDIR)/cali/cali.c $(SRCDIR)/gfx/gfx.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial-joystick.c $(SRCDIR)/daemon/daemon.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
@@ -25,6 +28,8 @@ $(OBJDIR):
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
+	cp $(FONT) $(BINDIR)/
+	cp $(LAUNCHSCRIPT) $(BINDIR)/../../
 
 .PHONY: clean
 clean:

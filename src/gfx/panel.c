@@ -115,7 +115,7 @@ void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
-    const uint8_t timeout = 10;
+    const uint8_t timeout = 6;
 
     if(resetTimer)
     {
@@ -156,7 +156,7 @@ void joyZeroPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
-    const uint8_t timeout = 5;
+    const uint8_t timeout = 3;
 
     if(resetTimer)
     {
