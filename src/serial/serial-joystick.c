@@ -38,12 +38,14 @@ int openJoypad(const char *serialPort)
         return -1;
     }
 
+    printf("Serial device open correctly!\n");
+
     return fd;
 }
 
 int closeJoypad(int fd)
 {
-    close(fd);
+    return close(fd);
 }
 
 void parseRawData(uint8_t *b, uint8_t rb, joypad_struct_t *j)
@@ -57,28 +59,19 @@ void parseRawData(uint8_t *b, uint8_t rb, joypad_struct_t *j)
     j->buttons.b = b[2];
     j->x = (b[3] << 8 | b[4]);
     j->y = (b[5] << 8 | b[6]);
+
+    //printf("values: %04d %04d\n", j->x, j->y);
 }
 
-void readJoypad(int fd, joypad_struct_t *j)
+int readJoypad(int fd, joypad_struct_t *j)
 {
-    uint8_t r = 0;
-    uint8_t b[8];
-    ssize_t rb;
-
-    int rtrs = 100; // Max retries
-    do {
-        rb = read(fd, b, sizeof(b)-1);
-        
-        // Discard invalid messages
-        if (rb != 7 || b[0] != 0xFF || b[1] != 0x01)
-        {
-            rtrs--;
-            continue;
-        }
-
-        parseRawData(b, 7, j);
-        
-        r = 1;
+    static ssize_t rb;
+    static uint8_t b[8];
+    rb = read(fd, b, 7);
+    if (rb != 7 || b[0] != 0xFF || b[1] != 0x01)
+    {   
+        return 0;
     }
-    while(r == 0 && rtrs > 0);
+    parseRawData(b, rb, j);
+    return 1;
 }

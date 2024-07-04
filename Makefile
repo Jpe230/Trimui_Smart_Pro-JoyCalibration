@@ -1,41 +1,33 @@
-TARGET_EXEC ?= TSP_JoyCalibration
+CC = gcc
+CFLAGS = -Wall -Wextra
+LDFLAGS = -lSDL2 -lSDL2_ttf
 
-BUILD_DIR ?= ./build
-SRC_DIRS ?= ./src
+SRCDIR = src
+BUILDDIR = build
+OBJDIR = build/obj
+BINDIR = build/bin
 
-SRCS := $(shell find $(SRC_DIRS) -name "*.c")
-OBJS := $(SRCS:%=$(BUILD_DIR)/%.o)
-DEPS := $(OBJS:.o=.d)
+TARGET = TSP_JoyCalibration
+#SRCS = $(SRCDIR)/main.c $(SRCDIR)/gfx/gfx_dev.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial_joystick_dev.c 
+#SRCS = $(SRCDIR)/main.c $(SRCDIR)/cali/cali.c $(SRCDIR)/gfx/gfx.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial-joystick.c 
+SRCS = $(SRCDIR)/main.c $(SRCDIR)/cali/cali.c $(SRCDIR)/gfx/gfx.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial-joystick.c 
+OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
-INC_DIRS := $(shell find $(SRC_DIRS) -type d)
-INC_FLAGS := $(addprefix -I,$(INC_DIRS))
+$(BINDIR)/$(TARGET): $(OBJS) | $(BINDIR)
+	$(CC) $(CFLAGS) $^ -o $@ $(LDFLAGS)
 
-CPPFLAGS ?= $(INC_FLAGS) -MMD -MP
-
-$(BUILD_DIR)/$(TARGET_EXEC): $(OBJS)
-	$(CC) $(OBJS) -o $@ $(LDFLAGS)
-
-# assembly
-$(BUILD_DIR)/%.s.o: %.s
+$(OBJDIR)/%.o: $(SRCDIR)/%.c | $(OBJDIR)
 	$(MKDIR_P) $(dir $@)
-	$(AS) $(ASFLAGS) -c $< -o $@
+	$(CC) $(CFLAGS) -c $< -o $@
 
-# c source
-$(BUILD_DIR)/%.c.o: %.c
-	$(MKDIR_P) $(dir $@)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -o $@
+$(OBJDIR):
+	mkdir -p $(OBJDIR)
 
-# c++ source
-$(BUILD_DIR)/%.cpp.o: %.cpp
-	$(MKDIR_P) $(dir $@)
-	$(CXX) $(CPPFLAGS) $(CXXFLAGS) -c $< -o $@
-
+$(BINDIR):
+	mkdir -p $(BINDIR)
 
 .PHONY: clean
-
 clean:
-	$(RM) -r $(BUILD_DIR)
-
--include $(DEPS)
+	rm -rf $(BUILDDIR)
 
 MKDIR_P ?= mkdir -p

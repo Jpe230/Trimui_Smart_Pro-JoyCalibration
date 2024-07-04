@@ -29,4 +29,4 @@ int closeJoypad(int fd);
  * @param fd[in] the handle of the device to read
  * @param j[in] joypad struct
  */
-void readJoypad(int fd, joypad_struct_t *j);
+int readJoypad(int fd, joypad_struct_t *j);

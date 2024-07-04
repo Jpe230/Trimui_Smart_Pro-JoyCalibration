@@ -51,3 +51,23 @@ typedef struct {
     uint16_t y;
 } joypad_struct_t;
 
+typedef struct {
+    int axis0;
+    int axis1;
+    int axis2;
+    int axis3;
+    uint8_t button_a;
+    uint8_t button_b;
+} sdl_axis_t;
+
+/**
+ * Struct for the calibration data
+ */
+typedef struct {
+    uint16_t x_min;
+    uint16_t x_max;
+    uint16_t y_min;
+    uint16_t y_max;
+    uint16_t x_zero;
+    uint16_t y_zero;
+} joypad_cali_t;
