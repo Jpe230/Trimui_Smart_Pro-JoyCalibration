@@ -7,7 +7,7 @@ TARGET = TSP-Calibration
 SRCDIR = src
 BUILDDIR = build
 OBJDIR = $(BUILDDIR)/obj
-BINDIR = $(BUILDDIR)/Calibrator/.data/$(TARGET)
+BINDIR = $(BUILDDIR)/Calibrator/$(TARGET)
 
 ASSETS = assets
 FONT = $(ASSETS)/font.ttf

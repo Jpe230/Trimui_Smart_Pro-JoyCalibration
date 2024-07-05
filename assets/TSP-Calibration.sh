@@ -2,7 +2,7 @@
 
 DIR="$(dirname "$(readlink -f "$0")")"
  
-cd "${DIR}/.data/TSP-Calibration"
+cd "${DIR}/TSP-Calibration"
 
 ./TSP-Calibration
 
