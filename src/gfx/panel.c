@@ -13,7 +13,7 @@ extern TTF_Font *font20;
 extern sdl_axis_t sdlAxis;
 extern double deltaTime;
 
-void drawUI()
+void drawUI(uint8_t blockExit)
 {
     SDL_SetRenderDrawColor(sdlRenderer, 45, 45, 45, 255);
     SDL_RenderClear(sdlRenderer);
@@ -29,8 +29,21 @@ void drawUI()
 
     r.y = 100;
     SDL_RenderFillRect(sdlRenderer, &r);
-
+    
     writeText(sdlRenderer, "Calibrate Control Sticks", font32, 70, 50);
+
+    if(blockExit)
+    {
+        return;
+    }
+
+    SDL_SetRenderDrawColor(sdlRenderer, 255,255, 255, 255);
+    drawFilledCircle(sdlRenderer, 970, 665, 20);
+    TTF_SetFontStyle(font26, TTF_STYLE_BOLD);
+    writeTextBg(sdlRenderer, "X", font26, 963, 648);
+    TTF_SetFontStyle(font26, TTF_STYLE_NORMAL);
+
+    writeText(sdlRenderer, "Exit program", font24, 1010, 650);
 }
 
 double map(double num, double in_min, double in_max, double out_min, double out_max)
@@ -117,13 +130,9 @@ void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
     static uint8_t isFirstFrame = 1;
     const uint8_t timeout = 6;
 
-    if(resetTimer)
-    {
-        isFirstFrame = 1;
-    }
-
     int text_x = 140;
     writeText(sdlRenderer, "Please rotate your joystick now!", font24, 100, text_x);
+    writeText(sdlRenderer, "Keep applying circular motions until the timer expires", font20, 100, text_x + 50);
 
     SDL_Rect r;
     r.w = 800;
@@ -132,6 +141,11 @@ void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
     r.y = CERTER_VER(r.h);
     SDL_SetRenderDrawColor(sdlRenderer, 150, 150, 150, 255);
     SDL_RenderFillRect(sdlRenderer, &r);
+
+    if(resetTimer)
+    {
+        isFirstFrame = 1;
+    }
 
     dTime += deltaTime;
     if(isFirstFrame)
@@ -145,7 +159,7 @@ void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
     SDL_SetRenderDrawColor(sdlRenderer, 0, 201, 165, 125);
     SDL_RenderFillRect(sdlRenderer, &r);
 
-    if (dTime >= timeout)
+    if(dTime >= timeout)
     {
         dTime = 0;
         *state = nextState;
@@ -197,10 +211,10 @@ void joyZeroPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
 
 void joySaving(int progress, const char *action)
 {   
-    drawUI();
+    drawUI(1);
 
     int text_x = 140;
-    writeText(sdlRenderer, "Applying changes...", font24, 100, text_x);
+    writeText(sdlRenderer, "Applying changes:", font24, 100, text_x);
     writeText(sdlRenderer, action, font20, 100, text_x + 50);
 
      SDL_Rect r;

@@ -90,3 +90,17 @@ void writeText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int x, 
     SDL_FreeSurface(surface);
     SDL_DestroyTexture(txtr);
 }
+
+void writeTextBg(SDL_Renderer *renderer, const char *text, TTF_Font *font, int x, int y)
+{
+    SDL_Color color = { 45, 45, 45, 255 };
+    SDL_Surface* surface = TTF_RenderText_Blended(font, text, color);
+    SDL_Texture* txtr = SDL_CreateTextureFromSurface(renderer, surface);
+    SDL_Rect rect;
+    rect.x = x;
+    rect.y = y;
+    SDL_QueryTexture(txtr, NULL, NULL, &rect.w, &rect.h);
+    SDL_RenderCopy(renderer, txtr, NULL, &rect);
+    SDL_FreeSurface(surface);
+    SDL_DestroyTexture(txtr);
+}

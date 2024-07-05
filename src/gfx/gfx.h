@@ -20,9 +20,9 @@
 
 /**
  * Draw the skeleton of the UI
- * @param sdlRenderer[in] SDL Renderer pointer
+ * @param blockExit[in] bool to show/hide the exit hint
  */
-void drawUI();
+void drawUI(uint8_t blockExit);
 
 
 /**
@@ -135,3 +135,11 @@ uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis);
 
 #define CERTER_HOR(w) ((SCREEN_WIDTH - w) / (2))
 #define CERTER_VER(H) ((SCREEN_HEIGHT - H) / (2))
+
+//#define CUSTOM_FONT
+
+#define FONT "./font.ttf"
+#ifndef CUSTOM_FONT
+    #undef FONT
+    #define FONT "/usr/share/fonts/truetype/noto/NotoSansSC-VF.ttf"
+#endif

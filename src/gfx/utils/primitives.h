@@ -13,3 +13,5 @@ void drawFilledCircle(SDL_Renderer *renderer, int centerX, int centerY, int radi
 void drawCrosshair(SDL_Renderer *renderer, int centerX, int centerY, int radius);
 
 void writeText(SDL_Renderer *renderer, const char *text, TTF_Font *font, int x, int y);
+
+void writeTextBg(SDL_Renderer *renderer, const char *text, TTF_Font *font, int x, int y);

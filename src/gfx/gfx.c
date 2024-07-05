@@ -29,10 +29,10 @@ void initSDL(SDL_Window **sdlWindow, SDL_Renderer **sdlRenderer)
 
 	TTF_Init();
 
-    font32 = TTF_OpenFont("./font.ttf", 32);
-    font26 = TTF_OpenFont("./font.ttf", 26);
-    font24 = TTF_OpenFont("./font.ttf", 24);
-    font20 = TTF_OpenFont("./font.ttf", 20);
+    font32 = TTF_OpenFont(FONT, 32);
+    font26 = TTF_OpenFont(FONT, 26);
+    font24 = TTF_OpenFont(FONT, 24);
+    font20 = TTF_OpenFont(FONT, 20);
 
 	openJoystick();
 

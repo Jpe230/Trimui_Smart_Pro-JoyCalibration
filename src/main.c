@@ -47,6 +47,8 @@ int main ()
     uint32_t now = SDL_GetPerformanceCounter();
     uint32_t last = 0;
 
+    uint8_t blockExit = 0;
+
     while(run)
     {   
         last = now;
@@ -54,7 +56,7 @@ int main ()
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
 
         run = pollControl(&event, &sdlAxis);
-        if (run == 0)
+        if (run == 0 && blockExit == 0)
         {
             INFO("Quitting main loop.");
             break;
@@ -65,7 +67,7 @@ int main ()
             continue;
         }
 
-        drawUI();
+        drawUI(blockExit);
 
         switch(state)
         {
@@ -73,6 +75,7 @@ int main ()
                 joyToCal = joySelectPanel(&state, 5);
                 break;
             case 5:
+                //                                   LEFT JOY      RIGHT JOY
                 joyFd = openJoypad(joyToCal == 0 ? "/dev/ttyS4" : "/dev/ttyS3");
                 clearData(&joyData, &joyCali);
                 state = 10;
@@ -84,6 +87,7 @@ int main ()
                 state = 20;
                 canRead = 1;
                 resetTimer = 1;
+                blockExit = 1;
                 break;
             case 20:
                 calculateMinMax(&joyData, &joyCali);
@@ -104,6 +108,7 @@ int main ()
                 closeJoypad(joyFd);
                 saveChanges(&joyCali, joyToCal);
                 state = 40;
+                blockExit = 0;
                 break;
             case 40:
                 joySave(&state, 0);
