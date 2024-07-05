@@ -32,7 +32,7 @@ Written in C and SDL2
 
 In this screen you can test your joysticks and select which joystick to calibrate, the program will guide you in calibrating your sticks.
 
-![Initial screen](./screenshots/test_screen.png | width=640)
+![Initial screen](./screenshots/test_screen.png)
 
 ### Calibration screen
 
@@ -40,17 +40,17 @@ You need to rotate your joysticks for about 5-6 to capture its max. position.
 
 >It's recommended to not apply to much pressure otherwise you will struggle in games that requires full range of motion.
 
-![calibration screen](./screenshots/rotation.png | width=640)
+![calibration screen](./screenshots/rotation.png)
 
 In the next section the program will capture the rest/zero position of the joystick, it is important to not move the stick otherwise the joystick will be offcenter.
 
-![zeroing screen](./screenshots/zero.png | width=640)
+![zeroing screen](./screenshots/zero.png)
 
 ### Applying calibration
 
 This program kills and restarts a daemon called `trimui-inputd` which is responsible to convert the raw values of the sticks to virtual controller inside Linux. It is recommended to perform a reboot after each calibration.
 
-![saving screen](./screenshots/saving.png | width=640)
+![saving screen](./screenshots/saving.png)
 
 This program calls the utility `batocera-save-overlay` it could take a while, especially if you have several change in your filesystem or it is the first time your are using it.
 
