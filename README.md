@@ -12,8 +12,7 @@ Written in C and SDL2
 ```
 ├─ userdata/roms/ports/
    ├─ TSP_Calibration/
-      ├─ TSP_Calibration/
-      │  ├─ font.ttf
+      ├─ bin/
       │  ├─ TSP_Calibration
       ├─ TSP_Calibration.sh
 ```

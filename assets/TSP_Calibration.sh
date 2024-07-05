@@ -2,7 +2,7 @@
 
 DIR="$(dirname "$(readlink -f "$0")")"
  
-cd "${DIR}/TSP_Calibration"
+cd "${DIR}/bin"
 
 chmod +x ./TSP_Calibration
 ./TSP_Calibration
