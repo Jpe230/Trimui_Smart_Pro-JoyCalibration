@@ -7,7 +7,7 @@ Written in C and SDL2
 ## Installation
 
 1. Download the [lastest release](https://github.com/Jpe230/Trimui_Smart_Pro-JoyCalibration/releases)
-2. Extract the content of the zip folder into your `/userdata/roms/ports` folder, the structure needs to be as follow:
+2. Extract the content of the zip folder into your `/userdata/roms/ports/TSP_Calibration/` folder, the structure needs to be as follow:
 
 ```
 ├─ userdata/roms/ports/
@@ -17,6 +17,8 @@ Written in C and SDL2
       │  ├─ TSP_Calibration
       ├─ TSP_Calibration.sh
 ```
+> Create the folder `TSP_Calibration` if necessary
+
 3. Update your gamelist
 4. In the `Ports` section a new entry called `TSP_Calibration` should appear
 
