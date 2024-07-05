@@ -18,22 +18,29 @@ void initSDL(SDL_Window **sdlWindow, SDL_Renderer **sdlRenderer)
 	SDL_CreateWindowAndRenderer(0, 0, SDL_WINDOW_FULLSCREEN, sdlWindow, sdlRenderer);
 
 	if (sdlWindow == NULL) {
-        printf("Error while creating window");
+        printf("Error while creating window\n");
 		exit(1);
 	}
 
 	if (sdlRenderer == NULL) {
-        printf("Error while creating renderer");
+        printf("Error while creating renderer\n");
 		exit(1);
 	}
 
 	TTF_Init();
+
     font32 = TTF_OpenFont("./font.ttf", 32);
     font26 = TTF_OpenFont("./font.ttf", 26);
     font24 = TTF_OpenFont("./font.ttf", 24);
     font20 = TTF_OpenFont("./font.ttf", 20);
 
 	openJoystick();
+
+	if (joystick == NULL)
+	{
+		printf("Error while opening joystick\n");
+		exit(1);
+	}
 }
 
 void cleanScreen(SDL_Renderer *sdlRenderer)

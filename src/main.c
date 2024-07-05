@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
+#include "debug.h"
 #include "serial/serial-joystick.h"
 #include "gfx/gfx.h"
 #include "cali/cali.h"
@@ -23,9 +24,13 @@ double deltaTime = 0;
 void saveChanges(joypad_cali_t *cali, uint8_t joyToCal);
 
 int main ()
-{
+{   
+    INFO("Starting calibration tool.");
+
     initSDL(&sdlWindow, &sdlRenderer);
     cleanScreen(sdlRenderer);
+
+    INFO("SDL init. correct.");
 
     uint8_t resetTimer = 0;
     uint8_t canRead = 0;
@@ -49,11 +54,15 @@ int main ()
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
 
         run = pollControl(&event, &sdlAxis);
+        if (run == 0)
+        {
+            INFO("Quitting main loop.");
+            break;
+        }
 
         if(canRead && readJoypad(joyFd, &joyData) == 0)
         {
             continue;
-            usleep(1000);
         }
 
         drawUI();
@@ -104,13 +113,15 @@ int main ()
         SDL_RenderPresent(sdlRenderer);
     }    
     
+    INFO("Cleaning up SDL objects.");
+    
     closeJoypad(joyFd);
     cleanScreen(sdlRenderer);
 
-    usleep(1); // Wait for screen to clear
+    usleep(1000 * 50); // Wait for screen to clear
 
     cleanUpSDL(sdlWindow, sdlRenderer);
-    printf("Closing app\n");
+    INFO("Exiting.");
     exit(0);
 }
 
@@ -149,5 +160,5 @@ void saveChanges(joypad_cali_t *cali, uint8_t joyToCal)
     
     joySaving(85, "Applying changes to boot partition...");
     sleep(1);
-    // system("batocera-save-overlay");
+    system("batocera-save-overlay");
 }
