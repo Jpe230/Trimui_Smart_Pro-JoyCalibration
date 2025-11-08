@@ -142,17 +142,17 @@ void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate)
     sleep(1);
     closeJoystick();
 
-    joySaving(20, "Writing new calibartion data...");
+    joySaving(20, "Writing new calibration data...");
     sleep(1);
     writeCali(cali, fileCal);
 
     joySaving(35, "Killing input daemon...");
     sleep(1);
-    killDaemon("trimui_inputd");
+    killDaemon("trimui_inputd_smart_pro");
 
     joySaving(55, "Restarting input daemon...");
     sleep(1);
-    startDaemon("trimui_inputd &");
+    startDaemon("trimui_inputd_smart_pro &");
     
     joySaving(70, "Opening SDL joystick...");
     sleep(1);

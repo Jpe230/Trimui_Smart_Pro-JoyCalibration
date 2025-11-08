@@ -91,7 +91,7 @@ uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 			}
 		}
 
-		if(event->type == SDL_QUIT || (event->type == SDL_JOYBUTTONDOWN && event->jbutton.button == 3))
+		if(event->type == SDL_QUIT || (event->type == SDL_JOYBUTTONDOWN && event->jbutton.button == 2))
 		{
 			printf("Exiting\n");
 			return 0;
@@ -102,10 +102,10 @@ uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 			switch(event->jbutton.button)
 			{
 				case 0:
-					sdlAxis->button_b = 1;
+					sdlAxis->button_a = 1;
 					break;
 				case 1:
-					sdlAxis->button_a = 1;
+					sdlAxis->button_b = 1;
 					break;
 			}
 		}
@@ -115,10 +115,10 @@ uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 			switch(event->jbutton.button)
 			{
 				case 0:
-					sdlAxis->button_b = 0;
+					sdlAxis->button_a = 0;
 					break;
 				case 1:
-					sdlAxis->button_a = 0;
+					sdlAxis->button_b = 0;
 					break;
 			}
 		}
@@ -127,17 +127,16 @@ uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 		{
 			switch(event->jaxis.axis)
 			{
-				printf("event: %d", event->jaxis.axis);
 				case 0:
 					sdlAxis->axis0 = event->jaxis.value;
 					break;
 				case 1:
 					sdlAxis->axis1 = event->jaxis.value;
 					break;
-				case 4:
+				case 3:
 					sdlAxis->axis2 = event->jaxis.value;
 					break;
-				case 3:
+				case 2:
 					sdlAxis->axis3 = event->jaxis.value;
 					break;
 			}
