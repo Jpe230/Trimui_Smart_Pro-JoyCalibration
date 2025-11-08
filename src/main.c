@@ -20,6 +20,9 @@ void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate);
 
 #define FRAME_TARGET_MS 16u
 #define APPLY_CAL_SCRIPT "./apply_calibration.sh"
+#define JOYSTICK_REOPEN_TIMEOUT_MS 5000u
+
+static int reinitializeJoystick(void);
 
 int main ()
 {
@@ -177,9 +180,12 @@ void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate)
         }
     }
 
-    joySaving(55, "Opening SDL joystick...");
-    sleep(3);
-    openJoystick();
+    joySaving(40, "Reinitializing SDL joystick subsystem...");
+    sleep(1);
+    if (reinitializeJoystick() != 0)
+    {
+        fprintf(stderr, "Unable to reopen joystick after calibration.\n");
+    }
 
     int joysticks = SDL_NumJoysticks();
     const char *joystickName = (joysticks > 0) ? SDL_JoystickNameForIndex(0) : "unknown";
@@ -187,4 +193,34 @@ void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate)
     
     joySaving(85, "Calibration complete.");
     sleep(1);
+}
+
+static int reinitializeJoystick(void)
+{
+    SDL_JoystickEventState(SDL_DISABLE);
+    SDL_QuitSubSystem(SDL_INIT_JOYSTICK);
+    SDL_Delay(100);
+
+    if (SDL_InitSubSystem(SDL_INIT_JOYSTICK) != 0)
+    {
+        fprintf(stderr, "Failed to reinitialize SDL joystick subsystem: %s\n", SDL_GetError());
+        return -1;
+    }
+
+    uint32_t startTicks = SDL_GetTicks();
+    while (SDL_GetTicks() - startTicks < JOYSTICK_REOPEN_TIMEOUT_MS)
+    {
+        SDL_PumpEvents();
+        if (SDL_NumJoysticks() > 0)
+        {
+            openJoystick();
+            SDL_JoystickEventState(SDL_ENABLE);
+            SDL_PumpEvents();
+            return 0;
+        }
+        SDL_Delay(100);
+    }
+
+    fprintf(stderr, "Timeout waiting for joystick to reattach.\n");
+    return -1;
 }
