@@ -68,10 +68,10 @@ int main ()
         switch(state)
         {
             case 0:
-                joystickToCalibrate = joySelectPanel(&state, 5);
+                joystickToCalibrate = joystickSelectPanel(&state, 5);
                 break;
             case 5:
-                //                                               LEFT JOY      RIGHT JOY
+                //                                                           LEFT JOY       RIGHT JOY
                 joystickFd = openSerialJoystick(joystickToCalibrate == 0 ? "/dev/ttyS4" : "/dev/ttyS3");
                 clearData(&joystickSerialData, &joystickCalibrationData);
                 state = 10;
@@ -161,5 +161,4 @@ void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate)
     
     joySaving(85, "Applying changes to boot partition...");
     sleep(1);
-    system("batocera-save-overlay");
 }

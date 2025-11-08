@@ -51,7 +51,7 @@ double map(double num, double in_min, double in_max, double out_min, double out_
     return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-uint8_t joySelectPanel(uint8_t *state, uint8_t nextState)
+uint8_t joystickSelectPanel(uint8_t *state, uint8_t nextState)
 {
     int text_x = 420;
     writeText(sdlRenderer, "Check the following:", font24, 100, text_x);

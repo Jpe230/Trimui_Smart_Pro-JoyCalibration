@@ -32,7 +32,7 @@ void drawUI(uint8_t blockExit);
  * @param nextState[in] the int value for the next panel
  * @return index for joypad
  */
-uint8_t joySelectPanel(uint8_t *state, uint8_t nextState);
+uint8_t joystickSelectPanel(uint8_t *state, uint8_t nextState);
 
 /**
  * Small tutorial panel

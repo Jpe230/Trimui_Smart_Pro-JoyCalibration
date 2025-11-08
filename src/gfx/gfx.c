@@ -127,6 +127,7 @@ uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 		{
 			switch(event->jaxis.axis)
 			{
+				printf("event: %d", event->jaxis.axis);
 				case 0:
 					sdlAxis->axis0 = event->jaxis.value;
 					break;
