@@ -11,7 +11,6 @@ void INFO(const char * MSG)
     return;
 #endif
 #ifdef DBG
-    //FILE *fp = fopen("/userdata/system/logs/tsp_calibration.txt", "a");
     FILE *fp = fopen("./tsp_logs.txt", "a");
     if(fp==NULL) {
         perror("Error opening file.");

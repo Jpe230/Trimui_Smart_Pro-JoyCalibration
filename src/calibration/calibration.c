@@ -23,7 +23,7 @@ void clearData(joypad_struct_t *joypad, joypad_cali_t *cali)
     cali->y_zero=0;
 }
 
-void calculateMinMax(joypad_struct_t *joypad, joypad_cali_t *cali)
+void calculateJoystickMinMax(joypad_struct_t *joypad, joypad_cali_t *cali)
 {
     cali->x_max=max(cali->x_max, joypad->x);
     cali->y_max=max(cali->y_max, joypad->y);
@@ -38,7 +38,7 @@ void calculateMinMax(joypad_struct_t *joypad, joypad_cali_t *cali)
     }
 }
 
-void calculateZero(joypad_struct_t *joypad, joypad_cali_t *cali) 
+void calculateJoystickZeroPosition(joypad_struct_t *joypad, joypad_cali_t *cali) 
 {
     cali->x_zero=joypad->x;
     cali->y_zero=joypad->y;

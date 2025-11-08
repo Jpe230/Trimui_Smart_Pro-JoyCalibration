@@ -3,10 +3,10 @@
 
 #include "gfx.h"
 
-extern TTF_Font *font32;
-extern TTF_Font *font26;
-extern TTF_Font *font24;
-extern TTF_Font *font20;
+TTF_Font *font32 = NULL;
+TTF_Font *font26 = NULL;
+TTF_Font *font24 = NULL;
+TTF_Font *font20 = NULL;
 
 SDL_Joystick* joystick;
 
@@ -75,7 +75,7 @@ void cleanUpSDL(SDL_Window *sdlWindow, SDL_Renderer *sdlRenderer)
 	SDL_Quit();
 }
 
-uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis)
+uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 {
 	while( SDL_PollEvent( event ) != 0 )
 	{

@@ -40,7 +40,7 @@ uint8_t joySelectPanel(uint8_t *state, uint8_t nextState);
  * @param state[in] the pointer to the current state
  * @param nextState[in] the int value for the next panel
  */
-void joyTutorial(uint8_t *state, uint8_t nextState);
+void joystickTutorialPanel(uint8_t *state, uint8_t nextState);
 
 /**
  * Panel where the user rotates the stick to calcultate the min max values
@@ -51,7 +51,7 @@ void joyTutorial(uint8_t *state, uint8_t nextState);
  * @param state[in] the pointer to the current state
  * @param nextState[in] the int value for the next panel
  */
-void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState);
+void joystickCalibrationPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState);
 
 /**
  * Panel where the zero pos is calcultated
@@ -61,7 +61,7 @@ void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
  * @param state[in] the pointer to the current state
  * @param nextState[in] the int value for the next panel
  */
-void joyZeroPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer,uint8_t *state, uint8_t nextState);
+void joystickDeathZonePanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer,uint8_t *state, uint8_t nextState);
 
 /**
  * Panel with a progress bar to show what are we doing while saving
@@ -80,7 +80,7 @@ void joySaving(int progress, const char *action);
  * @param nextState[in] the int value for the next panel
  * @param resetState[in] the int value for the first panel
  */
-void joySave(uint8_t *state, uint8_t nextState);
+void joystickSavePanel(uint8_t *state, uint8_t nextState);
 
 /////////////////////////////////////////////////////////
 ///
@@ -126,7 +126,7 @@ void closeJoystick();
  * @param sdlRenderer[in] SDL Renderer pointer
  * @return int to exit
  */
-uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis);
+uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis);
 
 
 /////////////////////////////////////////////////////////

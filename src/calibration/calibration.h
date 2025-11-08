@@ -11,7 +11,7 @@
  * @param joypad[in] the current values
  * @param cali[out] the calculated values
  */
-void calculateMinMax(joypad_struct_t *joypad, joypad_cali_t *cali);
+void calculateJoystickMinMax(joypad_struct_t *joypad, joypad_cali_t *cali);
 
 /**
  * Calculates the zero position of the stickes
@@ -19,7 +19,7 @@ void calculateMinMax(joypad_struct_t *joypad, joypad_cali_t *cali);
  * @param joypad[in] the current values
  * @param cali[out] the calculated values
  */
-void calculateZero(joypad_struct_t *joypad, joypad_cali_t *cali);
+void calculateJoystickZeroPosition(joypad_struct_t *joypad, joypad_cali_t *cali);
 
 /**
  * Clears the data of the input parameters

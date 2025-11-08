@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 
-int openJoypad(const char *serialPort)
+int openSerialJoystick(const char *serialPort)
 {
     int fd = open(serialPort, O_RDONLY | O_NOCTTY | O_NONBLOCK);
     if (fd == -1)
@@ -43,7 +43,7 @@ int openJoypad(const char *serialPort)
     return fd;
 }
 
-int closeJoypad(int fd)
+int closeSerialJoystick(int fd)
 {
     if(fd <= 0)
     {
@@ -66,7 +66,7 @@ void parseRawData(uint8_t *b, uint8_t rb, joypad_struct_t *j)
     j->y = (b[5] << 8 | b[6]);
 }
 
-int readJoypad(int fd, joypad_struct_t *j)
+int readSerialJoypad(int fd, joypad_struct_t *j)
 {
     static ssize_t rb;
     static uint8_t b[8];

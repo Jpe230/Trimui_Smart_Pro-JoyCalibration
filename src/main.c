@@ -7,21 +7,17 @@
 #include "debug.h"
 #include "serial/serial-joystick.h"
 #include "gfx/gfx.h"
-#include "cali/cali.h"
+#include "calibration/calibration.h"
 #include "daemon/daemon.h"
 
 #define MAX_COMMAND_LENGTH 256
 
 SDL_Renderer *sdlRenderer = NULL;
 SDL_Window *sdlWindow = NULL;
-TTF_Font *font32 = NULL;
-TTF_Font *font26 = NULL;
-TTF_Font *font24 = NULL;
-TTF_Font *font20 = NULL;
 sdl_axis_t sdlAxis;
 double deltaTime = 0;
 
-void saveChanges(joypad_cali_t *cali, uint8_t joyToCal);
+void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate);
 
 int main ()
 {   
@@ -36,11 +32,11 @@ int main ()
     uint8_t canRead = 0;
     uint8_t state = 0;
     uint8_t run = 1;
-    int joyToCal = 0;
-    int joyFd = -1;
+    int joystickToCalibrate = 0;
+    int joystickFd = -1;
 
-    joypad_struct_t joyData;
-    joypad_cali_t joyCali;
+    joypad_struct_t joystickSerialData;
+    joypad_cali_t joystickCalibrationData;
     
     SDL_Event event;
 
@@ -55,14 +51,14 @@ int main ()
         now = SDL_GetPerformanceCounter();
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
 
-        run = pollControl(&event, &sdlAxis);
+        run = pollSdlJoystick(&event, &sdlAxis);
         if (run == 0 && blockExit == 0)
         {
             INFO("Quitting main loop.");
             break;
         }
 
-        if(canRead && readJoypad(joyFd, &joyData) == 0)
+        if(canRead && readSerialJoypad(joystickFd, &joystickSerialData) == 0)
         {
             continue;
         }
@@ -72,16 +68,16 @@ int main ()
         switch(state)
         {
             case 0:
-                joyToCal = joySelectPanel(&state, 5);
+                joystickToCalibrate = joySelectPanel(&state, 5);
                 break;
             case 5:
-                //                                   LEFT JOY      RIGHT JOY
-                joyFd = openJoypad(joyToCal == 0 ? "/dev/ttyS4" : "/dev/ttyS3");
-                clearData(&joyData, &joyCali);
+                //                                               LEFT JOY      RIGHT JOY
+                joystickFd = openSerialJoystick(joystickToCalibrate == 0 ? "/dev/ttyS4" : "/dev/ttyS3");
+                clearData(&joystickSerialData, &joystickCalibrationData);
                 state = 10;
                 break;
             case 10:
-                joyTutorial(&state, 15);
+                joystickTutorialPanel(&state, 15);
                 break;
             case 15:
                 state = 20;
@@ -90,8 +86,8 @@ int main ()
                 blockExit = 1;
                 break;
             case 20:
-                calculateMinMax(&joyData, &joyCali);
-                joyCaliPanel(/*&joyData, &joyCali,*/ resetTimer, &state, 25);
+                calculateJoystickMinMax(&joystickSerialData, &joystickCalibrationData);
+                joystickCalibrationPanel(/*&joystickSerialData, &joystickCalibrationData,*/ resetTimer, &state, 25);
                 resetTimer = 0;
                 break;
             case 25:
@@ -99,19 +95,19 @@ int main ()
                 resetTimer = 1;
                 break;
             case 30:
-                joyZeroPanel(/*&joyData, &joyCali,*/ resetTimer, &state, 35);
+                joystickDeathZonePanel(/*&joystickSerialData, &joystickCalibrationData,*/ resetTimer, &state, 35);
                 resetTimer = 0;
                 break;
             case 35:
                 canRead = 0;
-                calculateZero(&joyData, &joyCali);
-                closeJoypad(joyFd);
-                saveChanges(&joyCali, joyToCal);
+                calculateJoystickZeroPosition(&joystickSerialData, &joystickCalibrationData);
+                closeSerialJoystick(joystickFd);
+                saveChanges(&joystickCalibrationData, joystickToCalibrate);
                 state = 40;
                 blockExit = 0;
                 break;
             case 40:
-                joySave(&state, 0);
+                joystickSavePanel(&state, 0);
                 break;
         }
 
@@ -120,7 +116,7 @@ int main ()
     
     INFO("Cleaning up SDL objects.");
     
-    closeJoypad(joyFd);
+    closeSerialJoystick(joystickFd);
     cleanScreen(sdlRenderer);
 
     usleep(1000 * 50); // Wait for screen to clear
@@ -131,10 +127,10 @@ int main ()
 }
 
 
-void saveChanges(joypad_cali_t *cali, uint8_t joyToCal)
+void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate)
 {   
-    const char* fileCal = joyToCal == 0 ? "/mnt/UDISK/joypad.config" :  "/mnt/UDISK/joypad_right.config";
-    const char* fileCalBk = joyToCal == 0 ? "/mnt/UDISK/joypad.config.bk" :  "/mnt/UDISK/joypad_right.config.bk";
+    const char* fileCal = joystickToCalibrate == 0 ? "/mnt/UDISK/joypad.config" :  "/mnt/UDISK/joypad_right.config";
+    const char* fileCalBk = joystickToCalibrate == 0 ? "/mnt/UDISK/joypad.config.bk" :  "/mnt/UDISK/joypad_right.config.bk";
 
     joySaving(0, "Backing up old file...");
     sleep(1);
