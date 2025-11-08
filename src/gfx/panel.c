@@ -51,7 +51,7 @@ double map(double num, double in_min, double in_max, double out_min, double out_
     return (num - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
 }
 
-uint8_t joySelectPanel(uint8_t *state, uint8_t nextState)
+uint8_t joystickSelectPanel(uint8_t *state, uint8_t nextState)
 {
     int text_x = 420;
     writeText(sdlRenderer, "Check the following:", font24, 100, text_x);
@@ -109,7 +109,7 @@ uint8_t joySelectPanel(uint8_t *state, uint8_t nextState)
     return 0;
 }
 
-void joyTutorial(uint8_t *state, uint8_t nextState)
+void joystickTutorialPanel(uint8_t *state, uint8_t nextState)
 {
     int text_x = 140;
     writeText(sdlRenderer, "Read the following instructions:", font24, 100, text_x);
@@ -124,11 +124,11 @@ void joyTutorial(uint8_t *state, uint8_t nextState)
     }
 }
 
-void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState)
+void joystickCalibrationPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState)
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
-    const uint8_t timeout = 6;
+    const uint16_t timeout = 1500;
 
     int text_x = 140;
     writeText(sdlRenderer, "Please rotate your joystick now!", font24, 100, text_x);
@@ -166,11 +166,11 @@ void joyCaliPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t rese
     }
 }
 
-void joyZeroPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState)
+void joystickDeathZonePanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ uint8_t resetTimer, uint8_t *state, uint8_t nextState)
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
-    const uint8_t timeout = 3;
+    const uint16_t timeout = 750;
 
     if(resetTimer)
     {
@@ -233,7 +233,7 @@ void joySaving(int progress, const char *action)
     SDL_RenderPresent(sdlRenderer);
 }
 
-void joySave(uint8_t *state, uint8_t nextState)
+void joystickSavePanel(uint8_t *state, uint8_t nextState)
 {
     int text_x = 140;
     writeText(sdlRenderer, "Calibration has finished:", font24, 100, text_x);

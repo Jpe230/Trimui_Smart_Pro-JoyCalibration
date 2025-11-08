@@ -1,0 +1,15 @@
+services:
+  tsp-builder:
+    platform: linux/arm64
+    user: "${UID:-1000}:${GID:-1000}"
+    build:
+      context: .
+      dockerfile: Dockerfile
+      platforms:
+        - linux/arm64
+    volumes:
+      - ./:/workspace
+    working_dir: /workspace
+    command: >
+      bash -lc "make &&
+                echo '✅ Build finished. Output inside ./build'"

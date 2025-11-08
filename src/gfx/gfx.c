@@ -1,14 +1,114 @@
 // Copyright 2024 Jose Pablo Ramirez (@Jpe230)
 // SPDX-License-Identifier: GPL-2.0-or-later
 
+#include <ctype.h>
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
 #include "gfx.h"
 
-extern TTF_Font *font32;
-extern TTF_Font *font26;
-extern TTF_Font *font24;
-extern TTF_Font *font20;
+TTF_Font *font32 = NULL;
+TTF_Font *font26 = NULL;
+TTF_Font *font24 = NULL;
+TTF_Font *font20 = NULL;
 
 SDL_Joystick* joystick;
+
+#define JOYSTICK_CONFIG_PATH "./joystick.ini"
+
+typedef struct {
+    int button_exit;
+    int button_a;
+    int button_b;
+    int axis0;
+    int axis1;
+    int axis2;
+    int axis3;
+} joystick_config_t;
+
+static joystick_config_t joystickConfig = {
+    .button_exit = 2,
+    .button_a = 0,
+    .button_b = 1,
+    .axis0 = 0,
+    .axis1 = 1,
+    .axis2 = 3,
+    .axis3 = 2,
+};
+
+static char *trim_whitespace(char *str)
+{
+    if (str == NULL) return str;
+
+    while (isspace((unsigned char)*str)) {
+        ++str;
+    }
+
+    if (*str == '\0') {
+        return str;
+    }
+
+    char *end = str + strlen(str) - 1;
+    while (end > str && isspace((unsigned char)*end)) {
+        *end-- = '\0';
+    }
+
+    return str;
+}
+
+static void loadJoystickConfig(const char *path)
+{
+    FILE *fp = fopen(path, "r");
+    if (fp == NULL) {
+        printf("Using default joystick mapping (missing %s).\n", path);
+        return;
+    }
+
+    char line[256];
+    while (fgets(line, sizeof line, fp) != NULL) {
+        char *comment = strpbrk(line, "#;");
+        if (comment) {
+            *comment = '\0';
+        }
+
+        char *trimmed = trim_whitespace(line);
+        if (*trimmed == '\0' || *trimmed == '[') {
+            continue;
+        }
+
+        char *eq = strchr(trimmed, '=');
+        if (!eq) {
+            continue;
+        }
+
+        *eq = '\0';
+        char *key = trim_whitespace(trimmed);
+        char *value = trim_whitespace(eq + 1);
+        if (*value == '\0') {
+            continue;
+        }
+
+        int idx = atoi(value);
+
+        if (strcmp(key, "button_exit") == 0) {
+            joystickConfig.button_exit = idx;
+        } else if (strcmp(key, "button_a") == 0) {
+            joystickConfig.button_a = idx;
+        } else if (strcmp(key, "button_b") == 0) {
+            joystickConfig.button_b = idx;
+        } else if (strcmp(key, "axis0") == 0) {
+            joystickConfig.axis0 = idx;
+        } else if (strcmp(key, "axis1") == 0) {
+            joystickConfig.axis1 = idx;
+        } else if (strcmp(key, "axis2") == 0) {
+            joystickConfig.axis2 = idx;
+        } else if (strcmp(key, "axis3") == 0) {
+            joystickConfig.axis3 = idx;
+        }
+    }
+
+    fclose(fp);
+}
 
 void initSDL(SDL_Window **sdlWindow, SDL_Renderer **sdlRenderer)
 {
@@ -33,6 +133,8 @@ void initSDL(SDL_Window **sdlWindow, SDL_Renderer **sdlRenderer)
     font26 = TTF_OpenFont(FONT, 26);
     font24 = TTF_OpenFont(FONT, 24);
     font20 = TTF_OpenFont(FONT, 20);
+
+    loadJoystickConfig(JOYSTICK_CONFIG_PATH);
 
 	openJoystick();
 
@@ -75,7 +177,7 @@ void cleanUpSDL(SDL_Window *sdlWindow, SDL_Renderer *sdlRenderer)
 	SDL_Quit();
 }
 
-uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis)
+uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 {
 	while( SDL_PollEvent( event ) != 0 )
 	{
@@ -91,7 +193,7 @@ uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis)
 			}
 		}
 
-		if(event->type == SDL_QUIT || (event->type == SDL_JOYBUTTONDOWN && event->jbutton.button == 3))
+		if(event->type == SDL_QUIT || (event->type == SDL_JOYBUTTONDOWN && event->jbutton.button == joystickConfig.button_exit))
 		{
 			printf("Exiting\n");
 			return 0;
@@ -99,47 +201,47 @@ uint8_t pollControl(SDL_Event *event, sdl_axis_t *sdlAxis)
 
 		if(event->type == SDL_JOYBUTTONDOWN)
 		{
-			switch(event->jbutton.button)
-			{
-				case 0:
-					sdlAxis->button_b = 1;
-					break;
-				case 1:
-					sdlAxis->button_a = 1;
-					break;
-			}
+            if (event->jbutton.button == joystickConfig.button_a)
+            {
+                sdlAxis->button_a = 1;
+            }
+            else if (event->jbutton.button == joystickConfig.button_b)
+            {
+                sdlAxis->button_b = 1;
+            }
 		}
 
 		if(event->type == SDL_JOYBUTTONUP)
 		{
-			switch(event->jbutton.button)
-			{
-				case 0:
-					sdlAxis->button_b = 0;
-					break;
-				case 1:
-					sdlAxis->button_a = 0;
-					break;
-			}
+            if (event->jbutton.button == joystickConfig.button_a)
+            {
+                sdlAxis->button_a = 0;
+            }
+            else if (event->jbutton.button == joystickConfig.button_b)
+            {
+                sdlAxis->button_b = 0;
+            }
 		}
 
 		if(event->type == SDL_JOYAXISMOTION)
 		{
-			switch(event->jaxis.axis)
-			{
-				case 0:
-					sdlAxis->axis0 = event->jaxis.value;
-					break;
-				case 1:
-					sdlAxis->axis1 = event->jaxis.value;
-					break;
-				case 4:
-					sdlAxis->axis2 = event->jaxis.value;
-					break;
-				case 3:
-					sdlAxis->axis3 = event->jaxis.value;
-					break;
-			}
+            const int axis = event->jaxis.axis;
+            if (axis == joystickConfig.axis0)
+            {
+                sdlAxis->axis0 = event->jaxis.value;
+            }
+            else if (axis == joystickConfig.axis1)
+            {
+                sdlAxis->axis1 = event->jaxis.value;
+            }
+            else if (axis == joystickConfig.axis2)
+            {
+                sdlAxis->axis2 = event->jaxis.value;
+            }
+            else if (axis == joystickConfig.axis3)
+            {
+                sdlAxis->axis3 = event->jaxis.value;
+            }
 		}
 	}
 

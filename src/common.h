@@ -26,7 +26,6 @@ typedef struct {
     uint8_t BTN_F2 : 1;
 } joybutton_bitfield_t;
 
-
 /**
  * Union for the bitfield
  */
@@ -36,7 +35,6 @@ typedef union
 	joybutton_bitfield_t bf;
 } joybutton_t;
  
-
 /**
  * Main Struct for the serial message:
  *

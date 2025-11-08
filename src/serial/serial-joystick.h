@@ -12,7 +12,7 @@
  * @return file descriptor if successful
  * @return -1 if error
  */
-int openJoypad(const char *serialPort);
+int openSerialJoystick(const char *serialPort);
 
 /**
  * Closes the file descriptor
@@ -21,7 +21,7 @@ int openJoypad(const char *serialPort);
  * @return 1 if successful
  * @return -1 if error
  */
-int closeJoypad(int fd);
+int closeSerialJoystick(int fd);
 
 /**
  * Reads Joypad raw data
@@ -29,4 +29,4 @@ int closeJoypad(int fd);
  * @param fd[in] the handle of the device to read
  * @param j[in] joypad struct
  */
-int readJoypad(int fd, joypad_struct_t *j);
+int readSerialJoypad(int fd, joypad_struct_t *j);
