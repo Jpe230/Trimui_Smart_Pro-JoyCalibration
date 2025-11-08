@@ -13,6 +13,7 @@ ASSETS = assets
 CONFIG = $(ASSETS)/joystick.ini
 LAUNCHSCRIPT = $(ASSETS)/TSP_Calibration.sh
 CALISCRIPT = $(ASSETS)/apply_calibration.sh
+STOPDAEMONSCRIPT = $(ASSETS)/stop_input_daemon.sh
 
 SRCS = $(SRCDIR)/main.c $(SRCDIR)/calibration/calibration.c $(SRCDIR)/gfx/gfx.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial-joystick.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
@@ -31,8 +32,11 @@ $(BINDIR):
 	mkdir -p $(BINDIR)
 	cp $(CONFIG) $(BINDIR)/
 	cp $(CALISCRIPT) $(BINDIR)/
+	cp $(STOPDAEMONSCRIPT) $(BINDIR)/
 	cp $(LAUNCHSCRIPT) $(BINDIR)/../
-	chmod +x $(BINDIR)/../$(notdir $(LAUNCHSCRIPT)) $(BINDIR)/$(notdir $(CALISCRIPT))
+	chmod +x $(BINDIR)/../$(notdir $(LAUNCHSCRIPT)) \
+		$(BINDIR)/$(notdir $(CALISCRIPT)) \
+		$(BINDIR)/$(notdir $(STOPDAEMONSCRIPT))
 
 .PHONY: clean
 clean:

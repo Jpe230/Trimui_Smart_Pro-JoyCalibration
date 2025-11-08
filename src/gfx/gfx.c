@@ -24,6 +24,10 @@ typedef struct {
     int axis1;
     int axis2;
     int axis3;
+    int axis0_invert;
+    int axis1_invert;
+    int axis2_invert;
+    int axis3_invert;
 } joystick_config_t;
 
 static joystick_config_t joystickConfig = {
@@ -34,6 +38,10 @@ static joystick_config_t joystickConfig = {
     .axis1 = 1,
     .axis2 = 3,
     .axis3 = 2,
+    .axis0_invert = 0,
+    .axis1_invert = 0,
+    .axis2_invert = 0,
+    .axis3_invert = 0,
 };
 
 static char *trim_whitespace(char *str)
@@ -104,6 +112,14 @@ static void loadJoystickConfig(const char *path)
             joystickConfig.axis2 = idx;
         } else if (strcmp(key, "axis3") == 0) {
             joystickConfig.axis3 = idx;
+        } else if (strcmp(key, "axis0_invert") == 0) {
+            joystickConfig.axis0_invert = (idx != 0);
+        } else if (strcmp(key, "axis1_invert") == 0) {
+            joystickConfig.axis1_invert = (idx != 0);
+        } else if (strcmp(key, "axis2_invert") == 0) {
+            joystickConfig.axis2_invert = (idx != 0);
+        } else if (strcmp(key, "axis3_invert") == 0) {
+            joystickConfig.axis3_invert = (idx != 0);
         }
     }
 
@@ -226,23 +242,24 @@ uint8_t pollSdlJoystick(SDL_Event *event, sdl_axis_t *sdlAxis)
 		if(event->type == SDL_JOYAXISMOTION)
 		{
             const int axis = event->jaxis.axis;
+            Sint16 axisValue = event->jaxis.value;
             if (axis == joystickConfig.axis0)
             {
-                sdlAxis->axis0 = event->jaxis.value;
+                sdlAxis->axis0 = joystickConfig.axis0_invert ? (Sint16)(-axisValue) : axisValue;
             }
             else if (axis == joystickConfig.axis1)
             {
-                sdlAxis->axis1 = event->jaxis.value;
+                sdlAxis->axis1 = joystickConfig.axis1_invert ? (Sint16)(-axisValue) : axisValue;
             }
             else if (axis == joystickConfig.axis2)
             {
-                sdlAxis->axis2 = event->jaxis.value;
+                sdlAxis->axis2 = joystickConfig.axis2_invert ? (Sint16)(-axisValue) : axisValue;
             }
             else if (axis == joystickConfig.axis3)
             {
-                sdlAxis->axis3 = event->jaxis.value;
+                sdlAxis->axis3 = joystickConfig.axis3_invert ? (Sint16)(-axisValue) : axisValue;
             }
-		}
+        }
 	}
 
 	return 1;

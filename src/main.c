@@ -20,9 +20,11 @@ void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate);
 
 #define FRAME_TARGET_MS 16u
 #define APPLY_CAL_SCRIPT "./apply_calibration.sh"
+#define STOP_DAEMON_SCRIPT "./stop_input_daemon.sh"
 #define JOYSTICK_REOPEN_TIMEOUT_MS 5000u
 
 static int reinitializeJoystick(void);
+static void stopInputDaemon(void);
 
 int main ()
 {
@@ -81,8 +83,6 @@ int main ()
                 joystickToCalibrate = joystickSelectPanel(&state, 5);
                 break;
             case 5:
-                //                                                           LEFT JOY       RIGHT JOY
-                joystickFd = openSerialJoystick(joystickToCalibrate == 0 ? "/dev/ttyS4" : "/dev/ttyS3");
                 clearData(&joystickSerialData, &joystickCalibrationData);
                 state = 10;
                 break;
@@ -90,6 +90,9 @@ int main ()
                 joystickTutorialPanel(&state, 15);
                 break;
             case 15:
+                stopInputDaemon();
+                //                                                           LEFT JOY       RIGHT JOY
+                joystickFd = openSerialJoystick(joystickToCalibrate == 0 ? "/dev/ttyS4" : "/dev/ttyS3");
                 state = 20;
                 canRead = 1;
                 resetTimer = 1;
@@ -223,4 +226,13 @@ static int reinitializeJoystick(void)
 
     fprintf(stderr, "Timeout waiting for joystick to reattach.\n");
     return -1;
+}
+
+static void stopInputDaemon(void)
+{
+    int scriptResult = system(STOP_DAEMON_SCRIPT);
+    if (scriptResult != 0)
+    {
+        fprintf(stderr, "Failed to stop input daemon. Script exit status: %d\n", scriptResult);
+    }
 }
