@@ -12,8 +12,9 @@ BINDIR = $(BUILDDIR)/$(TARGET)/bin
 ASSETS = assets
 CONFIG = $(ASSETS)/joystick.ini
 LAUNCHSCRIPT = $(ASSETS)/TSP_Calibration.sh
+CALISCRIPT = $(ASSETS)/apply_calibration.sh
 
-SRCS = $(SRCDIR)/main.c $(SRCDIR)/calibration/calibration.c $(SRCDIR)/gfx/gfx.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial-joystick.c $(SRCDIR)/daemon/daemon.c
+SRCS = $(SRCDIR)/main.c $(SRCDIR)/calibration/calibration.c $(SRCDIR)/gfx/gfx.c $(SRCDIR)/gfx/panel.c $(SRCDIR)/gfx/utils/primitives.c $(SRCDIR)/serial/serial-joystick.c
 OBJS = $(SRCS:$(SRCDIR)/%.c=$(OBJDIR)/%.o)
 
 $(BINDIR)/$(TARGET): $(OBJS) | $(BINDIR)
@@ -28,8 +29,10 @@ $(OBJDIR):
 
 $(BINDIR):
 	mkdir -p $(BINDIR)
-	cp $(CONFIG) $(BINDIR)/../
+	cp $(CONFIG) $(BINDIR)/
+	cp $(CALISCRIPT) $(BINDIR)/
 	cp $(LAUNCHSCRIPT) $(BINDIR)/../
+	chmod +x $(BINDIR)/../$(notdir $(LAUNCHSCRIPT)) $(BINDIR)/$(notdir $(CALISCRIPT))
 
 .PHONY: clean
 clean:

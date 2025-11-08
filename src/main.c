@@ -8,9 +8,8 @@
 #include "serial/serial-joystick.h"
 #include "gfx/gfx.h"
 #include "calibration/calibration.h"
-#include "daemon/daemon.h"
 
-#define MAX_COMMAND_LENGTH 256
+#define MAX_COMMAND_LENGTH 512
 
 SDL_Renderer *sdlRenderer = NULL;
 SDL_Window *sdlWindow = NULL;
@@ -20,6 +19,7 @@ double deltaTime = 0;
 void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate);
 
 #define FRAME_TARGET_MS 16u
+#define APPLY_CAL_SCRIPT "./apply_calibration.sh"
 
 int main ()
 {
@@ -142,36 +142,49 @@ int main ()
 
 void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate)
 {   
-    const char* fileCal = joystickToCalibrate == 0 ? "/mnt/UDISK/joypad.config" :  "/mnt/UDISK/joypad_right.config";
-    const char* fileCalBk = joystickToCalibrate == 0 ? "/mnt/UDISK/joypad.config.bk" :  "/mnt/UDISK/joypad_right.config.bk";
-
-    joySaving(0, "Backing up old file...");
-    sleep(1);
-    if (access(fileCal, F_OK) == 0) {
-        rename(fileCal, fileCalBk);
-    }
-    
-    joySaving(15, "Closing SDL joystick...");
+    joySaving(0, "Closing SDL joystick...");
     sleep(1);
     closeJoystick();
 
-    joySaving(20, "Writing new calibration data...");
+    joySaving(20, "Running calibration script...");
     sleep(1);
-    writeCali(cali, fileCal);
 
-    joySaving(35, "Killing input daemon...");
-    sleep(1);
-    killDaemon("trimui_inputd_smart_pro");
+    char command[MAX_COMMAND_LENGTH];
+    int commandLength = snprintf(
+        command,
+        sizeof(command),
+        "%s %u %u %u %u %u %u %u",
+        APPLY_CAL_SCRIPT,
+        joystickToCalibrate,
+        (unsigned int)cali->x_min,
+        (unsigned int)cali->x_max,
+        (unsigned int)cali->y_min,
+        (unsigned int)cali->y_max,
+        (unsigned int)cali->x_zero,
+        (unsigned int)cali->y_zero
+    );
 
-    joySaving(55, "Restarting input daemon...");
-    sleep(1);
-    startDaemon("trimui_inputd_smart_pro &");
-    
-    joySaving(70, "Opening SDL joystick...");
-    sleep(1);
+    if (commandLength < 0 || commandLength >= (int)sizeof(command))
+    {
+        fprintf(stderr, "Failed to compose calibration script command.\n");
+    }
+    else
+    {
+        int scriptResult = system(command);
+        if (scriptResult != 0)
+        {
+            fprintf(stderr, "Calibration script exited with status %d.\n", scriptResult);
+        }
+    }
+
+    joySaving(55, "Opening SDL joystick...");
+    sleep(3);
+    openJoystick();
+
     int joysticks = SDL_NumJoysticks();
-    printf("There are %d joysticks connected: %s.\n", joysticks, SDL_JoystickNameForIndex(0));
+    const char *joystickName = (joysticks > 0) ? SDL_JoystickNameForIndex(0) : "unknown";
+    printf("There are %d joysticks connected: %s.\n", joysticks, joystickName);
     
-    joySaving(85, "Applying changes to boot partition...");
+    joySaving(85, "Calibration complete.");
     sleep(1);
 }

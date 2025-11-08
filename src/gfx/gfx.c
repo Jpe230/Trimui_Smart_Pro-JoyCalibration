@@ -14,7 +14,7 @@ TTF_Font *font20 = NULL;
 
 SDL_Joystick* joystick;
 
-#define JOYSTICK_CONFIG_PATH "./assets/joystick.ini"
+#define JOYSTICK_CONFIG_PATH "./joystick.ini"
 
 typedef struct {
     int button_exit;
