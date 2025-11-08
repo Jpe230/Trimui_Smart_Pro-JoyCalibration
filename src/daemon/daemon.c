@@ -15,7 +15,7 @@ pid_t getPID(const char *daemonName)
     char command[50];
     char pid_str[10];
     
-    snprintf(command, sizeof(command), "pgrep %s", daemonName);
+    snprintf(command, sizeof(command), "pgrep -f %s", daemonName);
     pipe = popen(command, "r");
     if (pipe == NULL) {
         return -1;

@@ -8,36 +8,9 @@
 #include <string.h>
 #include <stdint.h>
 
-static int read_exact(int fd, uint8_t *buf, size_t want) {
-    size_t got = 0;
-    while (got < want) {
-        ssize_t r = read(fd, buf + got, want - got);
-        if (r > 0) {
-            got += (size_t)r;
-            continue;
-        }
-        if (r == 0) {
-            // EOF (unusual for ttys, but handle it)
-            return 0;
-        }
-        if (errno == EINTR) {
-            continue; // interrupted by signal -> retry
-        }
-        if (errno == EAGAIN || errno == EWOULDBLOCK) {
-            // timed out / no data right now under nonblocking or VTIME=0
-            return 0;
-        }
-        // real error
-        perror("read");
-        return -1;
-    }
-    return (int)got;
-}
-
 int openSerialJoystick(const char *serialPort)
 {
-    // Open as blocking so VMIN/VTIME work
-    int fd = open(serialPort, O_RDONLY | O_NOCTTY);
+    int fd = open(serialPort, O_RDONLY | O_NOCTTY | O_NONBLOCK);
     if (fd == -1) {
         perror("Error opening serial port");
         return -1;
@@ -64,16 +37,26 @@ int openSerialJoystick(const char *serialPort)
     // Input flags: no SW flow control
     tty.c_iflag &= ~(IXON | IXOFF | IXANY);
 
-    // Make reads return after we have a full frame or a short timeout:
-    // VMIN=7 -> block until 7 bytes are available
-    // VTIME=1 -> or 0.1s timeout if fewer arrive (units are deciseconds)
-    tty.c_cc[VMIN]  = 7;
-    tty.c_cc[VTIME] = 1;
+    // Non-blocking reads should return immediately with whatever is available.
+    tty.c_cc[VMIN]  = 0;
+    tty.c_cc[VTIME] = 0;
 
     // Apply now; flush pending I/O first so we start clean
     tcflush(fd, TCIOFLUSH);
     if (tcsetattr(fd, TCSANOW, &tty) != 0) {
         perror("Error from tcsetattr");
+        close(fd);
+        return -1;
+    }
+
+    int flags = fcntl(fd, F_GETFL, 0);
+    if (flags == -1) {
+        perror("Error getting serial port flags");
+        close(fd);
+        return -1;
+    }
+    if (fcntl(fd, F_SETFL, flags | O_NONBLOCK) == -1) {
+        perror("Error setting serial port to non-blocking");
         close(fd);
         return -1;
     }
@@ -104,20 +87,60 @@ void parseRawData(const uint8_t *b, uint8_t rb, joypad_struct_t *j)
 
 int readSerialJoypad(int fd, joypad_struct_t *j)
 {
-    uint8_t b[7];
+    static uint8_t frameBuf[7];
+    static size_t framePos = 0;
+    static int trackedFd = -1;
+    uint8_t tmp[32];
+    int parsed = 0;
 
-    int got = read_exact(fd, b, sizeof b);
-    if (got <= 0) {
-        // 0 => timeout / no data yet; -1 => error already perror'ed
+    if (fd < 0 || j == NULL) {
+        return -1;
+    }
+
+    if (trackedFd != fd) {
+        trackedFd = fd;
+        framePos = 0;
+    }
+
+    ssize_t r = read(fd, tmp, sizeof tmp);
+    if (r < 0) {
+        if (errno == EAGAIN || errno == EWOULDBLOCK || errno == EINTR) {
+            return 0;
+        }
+        perror("read");
+        return -1;
+    }
+    if (r == 0) {
         return 0;
     }
 
-    // Optional sync check
-    if (b[0] != 0xFF || b[1] != 0x01) {
-        // Not a header; you might want to resync by shifting until 0xFF 0x01
-        return 0;
+    for (ssize_t i = 0; i < r; ++i) {
+        uint8_t byte = tmp[i];
+
+        if (framePos == 0) {
+            if (byte != 0xFF) {
+                continue;
+            }
+        } else if (framePos == 1) {
+            if (byte != 0x01) {
+                if (byte == 0xFF) {
+                    frameBuf[0] = 0xFF;
+                    framePos = 1;
+                } else {
+                    framePos = 0;
+                }
+                continue;
+            }
+        }
+
+        frameBuf[framePos++] = byte;
+
+        if (framePos == sizeof(frameBuf)) {
+            parseRawData(frameBuf, sizeof(frameBuf), j);
+            framePos = 0;
+            parsed = 1;
+        }
     }
 
-    parseRawData(b, 7, j);
-    return 1;
+    return parsed;
 }

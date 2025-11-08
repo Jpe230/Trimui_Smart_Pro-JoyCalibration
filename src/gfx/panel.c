@@ -128,7 +128,7 @@ void joystickCalibrationPanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ 
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
-    const uint8_t timeout = 6;
+    const uint16_t timeout = 1500;
 
     int text_x = 140;
     writeText(sdlRenderer, "Please rotate your joystick now!", font24, 100, text_x);
@@ -170,7 +170,7 @@ void joystickDeathZonePanel(/*joypad_struct_t *joypad, joypad_cali_t *cali,*/ ui
 {
     static double dTime = 0;
     static uint8_t isFirstFrame = 1;
-    const uint8_t timeout = 3;
+    const uint16_t timeout = 750;
 
     if(resetTimer)
     {

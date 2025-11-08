@@ -19,8 +19,10 @@ double deltaTime = 0;
 
 void saveChanges(joypad_cali_t *cali, uint8_t joystickToCalibrate);
 
+#define FRAME_TARGET_MS 16u
+
 int main ()
-{   
+{
     INFO("Starting calibration tool.");
 
     initSDL(&sdlWindow, &sdlRenderer);
@@ -47,6 +49,7 @@ int main ()
 
     while(run)
     {   
+        uint32_t frameStart = SDL_GetTicks();
         last = now;
         now = SDL_GetPerformanceCounter();
         deltaTime = (double)((now - last)*1000 / (double)SDL_GetPerformanceFrequency() );
@@ -58,9 +61,13 @@ int main ()
             break;
         }
 
-        if(canRead && readSerialJoypad(joystickFd, &joystickSerialData) == 0)
+        if (canRead)
         {
-            continue;
+            int readResult = readSerialJoypad(joystickFd, &joystickSerialData);
+            if (readResult < 0)
+            {
+                continue;
+            }
         }
 
         drawUI(blockExit);
@@ -112,6 +119,12 @@ int main ()
         }
 
         SDL_RenderPresent(sdlRenderer);
+
+        uint32_t frameDuration = SDL_GetTicks() - frameStart;
+        if (frameDuration < FRAME_TARGET_MS)
+        {
+            SDL_Delay(FRAME_TARGET_MS - frameDuration);
+        }
     }    
     
     INFO("Cleaning up SDL objects.");
