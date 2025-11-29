@@ -1,3 +1,7 @@
+# Project deprecated.
+
+The bundled inputd no longer can be calibrated.
+
 # Trimui Smart Pro Joystick Calibration
 
 Small program to calibrate the joysticks for the TSP
